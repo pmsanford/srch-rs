@@ -2,8 +2,14 @@
 name = "srch"
 version = "0.0.1"
 dependencies = [
+ "getopts 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "miniparse 0.0.1",
 ]
+
+[[package]]
+name = "getopts"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "miniparse"

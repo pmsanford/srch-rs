@@ -6,3 +6,6 @@ authors = ["Paul Sanford <me@paulsanford.net>"]
 
 [dependencies.miniparse]
 path = "miniparse"
+
+[dependencies]
+getopts = "0.1.0"
