@@ -1,4 +1,11 @@
 [root]
 name = "srch"
 version = "0.0.1"
+dependencies = [
+ "miniparse 0.0.1",
+]
+
+[[package]]
+name = "miniparse"
+version = "0.0.1"
 
