@@ -6,7 +6,7 @@ use rustc::session::config::{CrateType, Options};
 use rustc::session;
 use rustc::session::Session;
 use syntax::ast::{Crate, CrateConfig};
-use syntax::codemap::FileMap;
+use syntax::codemap::{Span, FileMap};
 use syntax::diagnostics::registry::Registry;
 use syntax::parse;
 use syntax::parse::lexer::StringReader;
@@ -72,4 +72,50 @@ pub fn get_crate_from_session(parse_session: &ParseSess,
 pub fn get_crate(source: String, path: String) -> Crate {
     let parse_session = get_parse_sess();
     get_crate_from_session(&parse_session, source, path)
+}
+
+pub fn parse_crate(source: String, path: String) -> Miniresult {
+    Miniresult::new(source, path)
+}
+
+pub struct Miniresult {
+    pub session: ParseSess,
+    pub file_map: Rc<FileMap>,
+    pub cr: Crate
+}
+
+impl Miniresult {
+    pub fn new(source: String, path: String) -> Miniresult {
+        let parse_session = get_parse_sess();
+        let fm = get_filemap(&parse_session, source, path);
+        let lexer = get_lexer(&parse_session, fm.clone());
+        let cfg = get_rustc_config();
+        let mut parser = Parser::new(&parse_session, cfg, box lexer);
+
+        Miniresult {
+            session: get_parse_sess(),
+            file_map: fm,
+            cr: parser.parse_crate_mod()
+        }
+    }
+
+    pub fn get_line_text_from_span(&self, spn: Span) -> String {
+        let no = self.get_line_from_span(spn);
+
+        self.file_map.get_line(no).unwrap()
+    }
+
+    pub fn get_line_from_span(&self, spn: Span) -> uint {
+        let pos = spn.lo;
+        let mut a = 0u;
+        {
+            let lines = self.file_map.lines.borrow();
+            let mut b = lines.len();
+            while b - a > 1u {
+                let m = (a + b) / 2u;
+                if (*lines)[m] > pos { b = m; } else { a = m; }
+            }
+        }
+        a
+    }
 }

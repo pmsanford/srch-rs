@@ -10,11 +10,14 @@ fn main() {
                                    FileMode::Open, 
                                    FileAccess::Read).unwrap();
     let source = file.read_to_string().unwrap();
-    let crt = miniparse::get_crate(source.clone(), args[1].clone());
+    let mpr = miniparse::parse_crate(source.clone(), args[1].clone());
 
-    for item_ptr in crt.module.items.iter() {
+    for item_ptr in mpr.cr.module.items.iter() {
         if item_ptr.ident.name.as_str() == args[2].as_slice() {
-            println!("I found it. Somewhere.");
+            println!("{}:{}: {}", 
+                     mpr.file_map.name,
+                     mpr.get_line_from_span(item_ptr.span) + 1, // 0-indexed
+                     mpr.get_line_text_from_span(item_ptr.span));
         }
     }
 }
