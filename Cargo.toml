@@ -1,0 +1,8 @@
+[package]
+
+name = "srch"
+version = "0.0.1"
+authors = ["Paul Sanford <me@paulsanford.net>"]
+
+[dependencies.miniparse]
+path = "miniparse"
