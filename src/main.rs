@@ -5,7 +5,9 @@ use std::os;
 use std::io::{File, FileMode, FileAccess};
 use std::io::fs::{PathExtensions, walk_dir};
 use syntax::codemap::Span;
-use syntax::ast::{Item_, Item, Method_, ImplItem};
+use syntax::ast::{
+    Item_, Item, Method_, ImplItem, TraitItem, StructFieldKind
+};
 use syntax::ptr::P;
 
 fn main() {
@@ -32,6 +34,45 @@ fn try_match(cwd: &Path, path: &Path, srch: &str) {
             print_line(cwd, &mpr, item_ptr.span);
         }
         match_impl_funcs(cwd, &mpr, item_ptr, srch);
+        match_trait_funcs(cwd, &mpr, item_ptr, srch);
+        match_struct_members(cwd, &mpr, item_ptr, srch);
+    }
+}
+
+fn match_struct_members(cwd: &Path, mpr: &miniparse::Miniresult,
+                        item_ptr: &P<Item>, srch: &str) {
+    if let Item_::ItemStruct(ref sdef, _) = item_ptr.node {
+        for sitem in sdef.fields.iter() {
+            if let StructFieldKind::NamedField(ref id, _) = sitem.node.kind {
+                if id.name.as_str() == srch {
+                    print_line(cwd, mpr, sitem.span);
+                }
+            }
+        }
+    }
+}
+
+fn match_trait_funcs(cwd: &Path, mpr: &miniparse::Miniresult,
+                     item_ptr: &P<Item>, srch: &str) {
+    if let Item_::ItemTrait(_, _, _, _, ref traititems) = item_ptr.node {
+        for titem in traititems.iter() {
+            match *titem {
+                TraitItem::RequiredMethod(ref tymethod) => {
+                    if tymethod.ident.name.as_str() == srch {
+                        print_line(cwd, mpr, tymethod.span);
+                    }
+                },
+                TraitItem::ProvidedMethod(ref ptymethod) => {
+                    if let Method_::MethDecl(id, _, _, _, _, _, _, _) =
+                        ptymethod.node {
+                            if id.name.as_str() == srch {
+                                print_line(cwd, mpr, ptymethod.span);
+                            }
+                        }
+                    },
+                _ => {}
+            }
+        }
     }
 }
 
