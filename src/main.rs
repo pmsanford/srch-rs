@@ -69,7 +69,7 @@ fn try_match(cwd: &Path, path: &Path, srch: &str,
     let mpr = miniparse::parse_crate(source.clone(), path_str);
 
     for item_ptr in mpr.cr.module.items.iter() {
-        if item_ptr.ident.name.as_str() == srch && tl {
+        if item_ptr.ident.name.as_str().contains(srch) && tl {
             print_line(cwd, &mpr, item_ptr.span);
         }
         if m {
@@ -89,7 +89,7 @@ fn match_struct_members(cwd: &Path, mpr: &miniparse::Miniresult,
     if let Item_::ItemStruct(ref sdef, _) = item_ptr.node {
         for sitem in sdef.fields.iter() {
             if let StructFieldKind::NamedField(ref id, _) = sitem.node.kind {
-                if id.name.as_str() == srch {
+                if id.name.as_str().contains(srch) {
                     print_line(cwd, mpr, sitem.span);
                 }
             }
@@ -103,14 +103,14 @@ fn match_trait_funcs(cwd: &Path, mpr: &miniparse::Miniresult,
         for titem in traititems.iter() {
             match *titem {
                 TraitItem::RequiredMethod(ref tymethod) => {
-                    if tymethod.ident.name.as_str() == srch {
+                    if tymethod.ident.name.as_str().contains(srch) {
                         print_line(cwd, mpr, tymethod.span);
                     }
                 },
                 TraitItem::ProvidedMethod(ref ptymethod) => {
                     if let Method_::MethDecl(id, _, _, _, _, _, _, _) =
                         ptymethod.node {
-                            if id.name.as_str() == srch {
+                            if id.name.as_str().contains(srch) {
                                 print_line(cwd, mpr, ptymethod.span);
                             }
                         }
@@ -127,7 +127,7 @@ fn match_impl_funcs(cwd: &Path, mpr: &miniparse::Miniresult,
         for iitem in impitems.iter() {
             if let ImplItem::MethodImplItem(ref meth) = *iitem {
                 if let Method_::MethDecl(id, _, _, _, _, _, _, _) = meth.node {
-                    if id.name.as_str() == srch {
+                    if id.name.as_str().contains(srch) {
                         print_line(cwd, mpr, meth.span);
                     }
                 }
