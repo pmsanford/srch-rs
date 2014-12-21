@@ -2,7 +2,7 @@ extern crate miniparse;
 extern crate syntax;
 extern crate getopts;
 
-use getopts::{optflag, getopts, OptGroup};
+use getopts::{optflag, getopts, OptGroup, usage, short_usage};
 use std::os;
 use std::io::{File, FileMode, FileAccess};
 use std::io::fs::{PathExtensions, walk_dir};
@@ -146,5 +146,6 @@ fn print_line(cwd: &Path, mpr: &miniparse::Miniresult, spn: Span) {
 }
 
 fn print_usage(program: &str, _opts: &[OptGroup]) {
-    println!("Usage: {} search_term", program);
+    let short = short_usage(program, _opts) + " search_term";
+    println!("{}", usage(short.as_slice(), _opts));
 }
